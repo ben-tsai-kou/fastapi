@@ -9,6 +9,7 @@ BOOKS = [
     {"title": "Title Four", "author": "AuthorFour", "category": "math"},
     {"title": "Title Five", "author": "AuthorFive", "category": "math"},
     {"title": "Title Six", "author": "AuthorSix", "category": "math"},
+    {"title": "Title Seven", "author": "AuthorTwo", "category": "computer science"},
 ]
 
 
@@ -64,3 +65,12 @@ async def delete_book(book_title: str):
         if BOOKS[i].get("title").casefold() == book_title.casefold():
             BOOKS.pop(i)
             break
+
+
+@app.get("/book/")
+async def fetch_book_by_author(author: str):
+    books_to_return = []
+    for book in BOOKS:
+        if book.get("author").casefold() == author.casefold():
+            books_to_return.append(book)
+    return books_to_return
