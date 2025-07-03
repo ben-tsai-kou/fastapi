@@ -89,7 +89,7 @@ async def read_book(
     for book in BOOKS:
         if book.id == book_id:
             return book
-    raise HTTPException(status_code=404, detail="Book not found")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
 
 
 @app.post("/create_book", status_code=status.HTTP_201_CREATED)
@@ -111,7 +111,9 @@ async def update_book(book: BookRequest):
             BOOKS[i] = book
             book_changed = True
     if not book_changed:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
 
 
 @app.delete("/book/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -125,4 +127,6 @@ async def delete_book(
             book_to_delete = True
             break
     if not book_to_delete:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
