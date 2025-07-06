@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
-from schema import TodoRequest
-from models import Todos
+from src.todo import models as todo_model
+from src.todo import schema as todo_schema
 from database import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -23,29 +23,33 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def read_all(db: db_dependency):
-    return db.query(Todos).all()
+    return db.query(todo_model.Todos).all()
 
 
 @router.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)
 async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
-    todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
+    todo_model = (
+        db.query(todo_model.Todos).filter(todo_model.Todos.id == todo_id).first()
+    )
     if todo_model is not None:
         return todo_model
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Todo not found")
 
 
 @router.post("/todo", status_code=status.HTTP_201_CREATED)
-async def create_todo(db: db_dependency, todo_request: TodoRequest):
-    todo_model = Todos(**todo_request.model_dump())
+async def create_todo(db: db_dependency, todo_request: todo_schema.TodoRequest):
+    todo_model = todo_model.Todos(**todo_request.model_dump())
     db.add(todo_model)
     db.commit()
 
 
 @router.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_todo(
-    db: db_dependency, todo_request: TodoRequest, todo_id: int = Path(gt=0)
+    db: db_dependency, todo_request: todo_schema.TodoRequest, todo_id: int = Path(gt=0)
 ):
-    todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
+    todo_model = (
+        db.query(todo_model.Todos).filter(todo_model.Todos.id == todo_id).first()
+    )
     if todo_model is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="todo not found."
@@ -59,7 +63,9 @@ async def update_todo(
 
 @router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(db: db_dependency, todo_id: int = Path(gt=0)):
-    todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
+    todo_model = (
+        db.query(todo_model.Todos).filter(todo_model.Todos.id == todo_id).first()
+    )
     if todo_model is None:
         raise HTTPException(status_code=404, detail="todo not found")
 
