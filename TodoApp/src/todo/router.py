@@ -5,7 +5,7 @@ from database import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Annotated
 from starlette import status
-
+from src.auth import router as auth_router
 
 router = APIRouter()
 
@@ -19,6 +19,7 @@ def get_db():
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
+user_dependency = Annotated[dict, Depends(auth_router.get_current_user)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -37,8 +38,10 @@ async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
 
 
 @router.post("/todo", status_code=status.HTTP_201_CREATED)
-async def create_todo(db: db_dependency, todo_request: todo_schema.TodoRequest):
-    todo_model = todo_model.Todos(**todo_request.model_dump())
+async def create_todo(
+    user: user_dependency, db: db_dependency, todo_request: todo_schema.TodoRequest
+):
+    todo_model = todo_model.Todos(**todo_request.model_dump(), owner_id=user.get("id"))
     db.add(todo_model)
     db.commit()
 
