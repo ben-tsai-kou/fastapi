@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
-from src.todo import models as todo_model
+from src.todo import models as todo_models
 from src.todo import schema as todo_schema
 from database import SessionLocal
 from sqlalchemy.orm import Session
@@ -23,14 +23,18 @@ user_dependency = Annotated[dict, Depends(auth_router.get_current_user)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
-async def read_all(db: db_dependency):
-    return db.query(todo_model.Todos).all()
+async def read_all(user: user_dependency, db: db_dependency):
+    return (
+        db.query(todo_models.Todos)
+        .filter(todo_models.Todos.owner_id == user.get("id"))
+        .all()
+    )
 
 
 @router.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)
 async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
     todo_model = (
-        db.query(todo_model.Todos).filter(todo_model.Todos.id == todo_id).first()
+        db.query(todo_models.Todos).filter(todo_models.Todos.id == todo_id).first()
     )
     if todo_model is not None:
         return todo_model
@@ -41,7 +45,7 @@ async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
 async def create_todo(
     user: user_dependency, db: db_dependency, todo_request: todo_schema.TodoRequest
 ):
-    todo_model = todo_model.Todos(**todo_request.model_dump(), owner_id=user.get("id"))
+    todo_model = todo_models.Todos(**todo_request.model_dump(), owner_id=user.get("id"))
     db.add(todo_model)
     db.commit()
 
@@ -51,7 +55,7 @@ async def update_todo(
     db: db_dependency, todo_request: todo_schema.TodoRequest, todo_id: int = Path(gt=0)
 ):
     todo_model = (
-        db.query(todo_model.Todos).filter(todo_model.Todos.id == todo_id).first()
+        db.query(todo_models.Todos).filter(todo_models.Todos.id == todo_id).first()
     )
     if todo_model is None:
         raise HTTPException(
@@ -67,7 +71,7 @@ async def update_todo(
 @router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(db: db_dependency, todo_id: int = Path(gt=0)):
     todo_model = (
-        db.query(todo_model.Todos).filter(todo_model.Todos.id == todo_id).first()
+        db.query(todo_models.Todos).filter(todo_models.Todos.id == todo_id).first()
     )
     if todo_model is None:
         raise HTTPException(status_code=404, detail="todo not found")
