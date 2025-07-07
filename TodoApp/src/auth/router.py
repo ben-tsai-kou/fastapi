@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="api/token")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 def get_db():
@@ -36,7 +36,9 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 def authenticate_user(username: str, password: str, db):
     user = (
-        db.query(auth_models.User).filter(auth_models.User.username == username).first()
+        db.query(auth_models.Users)
+        .filter(auth_models.Users.username == username)
+        .first()
     )
 
     if not user:
@@ -74,7 +76,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 async def create_user(
     db: db_dependency, create_user_request: auth_schema.CreateUserRequest
 ):
-    create_user_model = auth_models.User(
+    create_user_model = auth_models.Users(
         email=create_user_request.email,
         username=create_user_request.username,
         first_name=create_user_request.first_name,
