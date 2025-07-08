@@ -57,10 +57,16 @@ async def create_todo(
 
 @router.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_todo(
-    db: db_dependency, todo_request: todo_schema.TodoRequest, todo_id: int = Path(gt=0)
+    user: user_dependency,
+    db: db_dependency,
+    todo_request: todo_schema.TodoRequest,
+    todo_id: int = Path(gt=0),
 ):
     todo_model = (
-        db.query(todo_models.Todos).filter(todo_models.Todos.id == todo_id).first()
+        db.query(todo_models.Todos)
+        .filter(todo_models.Todos.id == todo_id)
+        .filter(todo_models.Todos.owner_id == user.get("id"))
+        .first()
     )
     if todo_model is None:
         raise HTTPException(
