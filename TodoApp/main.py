@@ -13,6 +13,12 @@ app = FastAPI()
 auth_models.Base.metadata.create_all(bind=engine)
 todo_models.Base.metadata.create_all(bind=engine)
 
+
+@app.get("/healthy")
+def health_check():
+    return {"status": "Healthy"}
+
+
 app.include_router(auth_router.router)
 app.include_router(todo_router.router)
 app.include_router(admin_router.router)
