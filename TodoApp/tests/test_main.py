@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture
 def client():
-    from main import app
+    from src.main import app
 
     return TestClient(app)
 

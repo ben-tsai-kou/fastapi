@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
-from TodoApp.database import Base
-from TodoApp.main import app
-from TodoApp.src.todo.router import get_db
-from TodoApp.src.auth.router import get_current_user
+from src.database import Base
+from src.main import app
+from src.todo.router import get_db
+from src.auth.router import get_current_user
 from fastapi.testclient import TestClient
 from fastapi import status
 
@@ -31,8 +31,10 @@ def override_get_db():
 
 
 def override_get_current_user():
-    return {"username": "Ben", "id": 1, "user_role": "admin"}
+    yield {"username": "Ben", "id": 1, "user_role": "admin"}
 
+
+print("[TEST] get_current_user from test:", get_current_user)
 
 app.dependency_overrides[get_db] = override_get_db
 app.dependency_overrides[get_current_user] = override_get_current_user
