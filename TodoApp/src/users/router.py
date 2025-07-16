@@ -1,6 +1,6 @@
 from typing import Annotated
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from src.database import SessionLocal
 from fastapi import APIRouter, Depends
 from starlette import status
 from fastapi import HTTPException

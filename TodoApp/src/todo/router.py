@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
 from src.todo import models as todo_models
 from src.todo import schema as todo_schema
-from database import SessionLocal
+from src.database import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Annotated
 from starlette import status
