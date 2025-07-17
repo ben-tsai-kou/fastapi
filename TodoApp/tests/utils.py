@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
-from src.database import Base
+from src.todo import models as todo_models
 from src.main import app
+from src.database import Base
 from fastapi.testclient import TestClient
 import pytest
 
@@ -42,3 +43,21 @@ def db():
         yield db
     finally:
         db.close()
+
+
+@pytest.fixture
+def test_todo(db):
+    todo = todo_models.Todos(
+        title="Learn to code!",
+        description="Need to learn everyday!",
+        priority=5,
+        complete=False,
+        owner_id=1,
+    )
+
+    db.add(todo)
+    db.commit()
+    yield todo
+    with engine.connect() as connection:
+        connection.execute(text("DELETE FROM todos;"))
+        connection.commit()
