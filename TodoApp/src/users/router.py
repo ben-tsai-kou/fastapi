@@ -6,7 +6,7 @@ from starlette import status
 from fastapi import HTTPException
 from src.auth import router as auth_router
 from passlib.context import CryptContext
-from src.auth import models as auth_models
+from src.users import models as users_models
 from src.users import schema as users_schema
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -28,8 +28,8 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_user(user: user_dependency, db: db_dependency):
     return (
-        db.query(auth_models.Users)
-        .filter(auth_models.Users.id == user.get("id"))
+        db.query(users_models.Users)
+        .filter(users_models.Users.id == user.get("id"))
         .first()
     )
 
@@ -41,8 +41,8 @@ async def change_phone_number(
     user_verification: users_schema.UserUpdatePhoneNumber,
 ):
     user_model = (
-        db.query(auth_models.Users)
-        .filter(auth_models.Users.id == user.get("id"))
+        db.query(users_models.Users)
+        .filter(users_models.Users.id == user.get("id"))
         .first()
     )
 
@@ -65,8 +65,8 @@ async def change_password(
     user_verification: users_schema.UserVerification,
 ):
     user_model = (
-        db.query(auth_models.Users)
-        .filter(auth_models.Users.id == user.get("id"))
+        db.query(users_models.Users)
+        .filter(users_models.Users.id == user.get("id"))
         .first()
     )
 

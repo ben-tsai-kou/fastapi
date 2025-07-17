@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.auth import models as auth_models
+from src.users import models as users_models
 
 from src.todo import models as todo_models
 from src.database import engine
@@ -10,7 +10,7 @@ from src.users import router as users_router
 
 app = FastAPI()
 
-auth_models.Base.metadata.create_all(bind=engine)
+users_models.Base.metadata.create_all(bind=engine)
 todo_models.Base.metadata.create_all(bind=engine)
 
 

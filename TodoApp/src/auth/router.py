@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from src.database import SessionLocal
 from fastapi import APIRouter, Depends
 from src.auth import schema as auth_schema
-from src.auth import models as auth_models
+from src.users import models as users_models
 from starlette import status
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -36,8 +36,8 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 def authenticate_user(username: str, password: str, db):
     user = (
-        db.query(auth_models.Users)
-        .filter(auth_models.Users.username == username)
+        db.query(users_models.Users)
+        .filter(users_models.Users.username == username)
         .first()
     )
 
@@ -80,7 +80,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 async def create_user(
     db: db_dependency, create_user_request: auth_schema.CreateUserRequest
 ):
-    create_user_model = auth_models.Users(
+    create_user_model = users_models.Users(
         email=create_user_request.email,
         username=create_user_request.username,
         first_name=create_user_request.first_name,

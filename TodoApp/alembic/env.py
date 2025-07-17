@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.auth import models as auth_models
+from src.users import models as users_models
 
 from dotenv import load_dotenv
 import os
@@ -28,7 +28,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = auth_models.Base.metadata
+target_metadata = users_models.Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
