@@ -2,6 +2,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 from src.todo import models as todo_models
+from src.users import models as users_models
+from src.auth import router as auth_router
 from src.main import app
 from src.database import Base
 from fastapi.testclient import TestClient
@@ -60,4 +62,24 @@ def test_todo(db):
     yield todo
     with engine.connect() as connection:
         connection.execute(text("DELETE FROM todos;"))
+        connection.commit()
+
+
+@pytest.fixture
+def test_user(db):
+    user = users_models.Users(
+        username="ben",
+        email="ben@email.com",
+        first_name="Ben",
+        last_name="Tsai",
+        hashed_password=auth_router.bcrypt_context.hash("testpassword"),
+        role="admin",
+        phone_number="(111)-111-1111",
+    )
+
+    db.add(user)
+    db.commit()
+    yield user
+    with engine.connect() as connection:
+        connection.execute(text("DELETE FROM users;"))
         connection.commit()
